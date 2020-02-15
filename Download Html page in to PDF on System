@@ -1,0 +1,17 @@
+use this cdn  "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.1/html2pdf.bundle.min.js"
+
+function generatePDF() 
+{
+	const element = document.getElementById("testdata");
+    	var opt = {
+      			margin:       .2,
+  			filename:     temp+'.pdf',
+  			image:        { type: 'jpeg', quality: 0.98 },
+  			html2canvas:  { scale: 2 },
+  			jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+		   };
+	/* -------------------------Download File in system--------------------------*/	
+	html2pdf().set(opt).from(element).save(projtitle); //projtitle = Name of PDF File. 
+	setTimeout(function(){ window.close(); }, 20000); //FOr Close Current Window.
+		 
+}

@@ -1,0 +1,53 @@
+//create function in Try{} and catch (e){} like this......
+
+try{ }
+catch (e) 
+{
+	var siteUrl = _spPageContextInfo.siteAbsoluteUrl;
+	var pageUrl = _spPageContextInfo.serverRequestPath;
+	var methodName = "update_insertHTIMELINE";
+	var errorType = e.name;
+	var errorMessage = e.message;
+	addErrorLog(siteUrl, pageUrl, methodName, errorType, errorMessage)
+	alert("An error occurred. Please contact your system administrator.");
+}
+
+
+
+//Function for error log........
+
+function addErrorLog(siteUrl, pageUrl, methodName, errorType, errorMessage) {
+	try {
+	    var clientContext = new SP.ClientContext.get_current();
+	    var oWeb = clientContext.get_web();
+	    var oList = oWeb.get_lists().getByTitle('ErrorLog');	    
+	    var listItemCreateInfo = new SP.ListItemCreationInformation();	    
+	    this.oListItem = oList.addItem(listItemCreateInfo)	    
+	    oListItem.set_item('Title', 'Error');
+	    oListItem.set_item('SiteUrl', siteUrl);
+	    oListItem.set_item('PageUrl', pageUrl);
+   	  oListItem.set_item('MethodName', methodName);
+	    oListItem.set_item('ErrorType', errorType);
+	    oListItem.set_item('ErrorMessage', errorMessage);
+	    oListItem.update();
+		
+	    clientContext.executeQueryAsync(
+			Function.createDelegate(this, this.onSuccessAddErrorLog),
+			Function.createDelegate(this, this.onFailAddErrorLog)
+				);
+		}
+    catch (e) 
+	{
+        alert('An error occurred while trying to log an error. Please contact your system administrator.' + e.Message());
+	}
+}
+
+function onSuccessAddErrorLog() 
+	{
+    //alert('Item created');
+	}
+
+function onFailAddErrorLog(sender, args) 
+	{
+		alert('An error occurred while trying to log an error. Please contact your system administrator.' + args.get_message());
+	}

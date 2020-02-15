@@ -1,0 +1,100 @@
+var listName = "MailTriger";
+var siteUrl = _spPageContextInfo.webAbsoluteUrl;
+var xRequestDigest = $("#__REQUESTDIGEST").val();
+            
+function MailTr()
+{
+	debugger;
+    var Toemail = $('#To_Email').val();
+	var subject = $('#Email_Subject').val();
+	var attach = $('#attachment').val();
+    
+	if(Toemail !== "" && subject !== "" && attach !== ""  )
+	{
+		var FirstName = JSON.stringify  ({  
+    	__metadata: { type: "SP.Data.MailTrigerListItem" },  
+    	Title: $('#To_Email').val(),
+        CC_ID: $('#Cc_Email').val(),
+        Subject: $('#Email_Subject').val()
+        });
+        
+        $.ajax({
+        	url: siteUrl + "/_api/lists/getbytitle('" + listName + "')/items",
+            method: "POST",
+            data: FirstName,
+            async: false,
+            headers:{
+                        "Accept": "application/json;odata=verbose",
+                        "Content-Type": "application/json;odata=verbose",
+                        "X-RequestDigest": xRequestDigest
+					},
+            success: function(data)
+            	{
+            		uploadattachment(data.d.ID);
+                	alert('E-MAIL SENT SUCCESSFULLY.');
+                },
+			error: function(data)
+				{
+            		alert(data.responseText);
+                }
+                });
+	}
+    else
+    	{
+        	alert("PLEASE FILL THE MANDATORY  FIELDS !");
+        }
+                
+}
+
+            
+var getFileBuffer = function (file) 
+{
+	var deferred = $.Deferred();
+	var reader = new FileReader();
+	reader.onload = function (e) 
+	{
+    	deferred.resolve(e.target.result);
+	}
+
+	reader.onerror = function (e) 
+	{
+		deferred.reject(e.target.error);
+	}
+		reader.readAsArrayBuffer(file);
+		return deferred.promise();
+};
+
+function uploadattachment(id) {
+	debugger;
+    var files = $("#attachment")[0].files;
+    if (files.length > 0) 
+    {
+    	$.each(files, function(index, value){
+    	getFileBuffer(value).then(function (buffer) {
+    		$.ajax({
+    	    	url: siteUrl + "/_api/web/lists/getbytitle('" + listName + "')/items(" + id + ")/AttachmentFiles/add(FileName='" + value.name + "')",
+    	    	method: 'POST',
+    	        data: buffer,
+    	        async: false,
+    	        processData: false,
+    	        headers: 
+    	        	{
+    	        		"Accept": "application/json;odata=verbose",
+    	                "content-type": "application/json;odata=verbose",
+    	                "X-RequestDigest": xRequestDigest
+    	            },
+    	        success: function (data) 
+		            {
+						//alert("");            
+    	            },
+    	        error: function (data) 
+    	        	{
+    	       			console.log(data.responseText.error);
+    	                alert(data.responseText);
+    	            }
+    	        });
+    	     });
+    	  });
+  	}
+}
+            

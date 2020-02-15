@@ -1,0 +1,49 @@
+Use this cdn = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.1/html2pdf.bundle.min.js"
+Use this cdn = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"
+
+function Print()
+{ debugger; 
+var doc = new jsPDF();
+const element = document.getElementById("testdata");
+    var opt = {
+      		margin:       .2,
+  			filename:     temp+'.pdf',
+  			image:        { type: 'jpeg', quality: 0.98 },
+  			html2canvas:  { scale: 2 },
+  			jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+			  };
+	/* -------------------------Download File in system--------------------------*/
+  
+	html2pdf().set(opt).from(element).outputPdf('arraybuffer').then((result)=>{	
+	
+	addFileToFolder(result);
+		
+	});   
+		
+   }
+
+function addFileToFolder(arrayBuffer) 
+{ debugger;
+/*---------------Generate PDF Document Name-----------------------*/       
+	var str1 = projtitle;
+	var str2 = ".pdf";
+  	var str = str1.concat(str2); 
+	var Tempstr = str.replace(" ", "_");
+	var fileName = Tempstr.replace("/", "-");
+//-----------------------------------------------------------//
+	
+/*------Construct the endpoint.------------------------------*/
+	var fileCollectionEndpoint = String.format(
+        _spPageContextInfo.webAbsoluteUrl +"/_api/web/getfolderbyserverrelativeurl('PDF')/files/add(overwrite=true, url='{0}')",fileName);
+	
+	return jQuery.ajax({
+            url: fileCollectionEndpoint,
+            type: "POST",
+            data: arrayBuffer,
+            processData: false,
+            headers: { 
+            	"accept": "application/json;odata=verbose",
+                "X-RequestDigest": jQuery("#__REQUESTDIGEST").val()
+                     }
+      });
+}
